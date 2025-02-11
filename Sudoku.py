@@ -70,3 +70,49 @@ class SudokuBoard:
 
         for text, command in buttons:
             tk.Button(self.buttons_frame, text=text, command=command).pack(side=tk.LEFT, padx=5)
+    def validate_input(self, event, i, j):
+            """Validates user input in cells"""
+            cell = self.cells[(i, j)]
+            value = cell.get()
+
+            # Clear invalid inputs
+            if value and not value.isdigit():
+                cell.delete(0, tk.END)
+                return
+
+            if len(value) > 1:
+                cell.delete(1, tk.END)
+                value = value[0]
+
+            if value and (i, j) not in self.original_numbers:
+                if not self.is_valid_move(i, j, int(value)):
+                    cell.config(fg='red')
+                else:
+                    cell.config(fg='blue')
+
+    def is_valid_move(self, row, col, num):
+        """Checks if a number placement is valid"""
+        # Check row
+        for j in range(9):
+            if j != col:
+                cell_value = self.cells[(row, j)].get()
+                if cell_value and int(cell_value) == num:
+                    return False
+
+        # Check column
+        for i in range(9):
+            if i != row:
+                cell_value = self.cells[(i, col)].get()
+                if cell_value and int(cell_value) == num:
+                    return False
+
+        # Check 3x3 box
+        box_row, box_col = 3 * (row // 3), 3 * (col // 3)
+        for i in range(box_row, box_row + 3):
+            for j in range(box_col, box_col + 3):
+                if (i, j) != (row, col):
+                    cell_value = self.cells[(i, j)].get()
+                    if cell_value and int(cell_value) == num:
+                        return False
+
+        return True
