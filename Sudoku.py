@@ -43,3 +43,30 @@ class SudokuBoard:
                 cell.bind('<KeyRelease>', lambda e, i=i, j=j: self.validate_input(e, i, j))
 
                 self.cells[(i, j)] = cell
+                     # Create control panel
+        self.control_panel = tk.Frame(self.window)
+        self.control_panel.pack(pady=10)
+
+        # Create difficulty selector
+        self.difficulty = tk.StringVar(value="medium")
+        tk.Label(self.control_panel, text="Difficulty:").pack(side=tk.LEFT)
+        tk.Radiobutton(self.control_panel, text="Easy", variable=self.difficulty, 
+                      value="easy").pack(side=tk.LEFT)
+        tk.Radiobutton(self.control_panel, text="Medium", variable=self.difficulty, 
+                      value="medium").pack(side=tk.LEFT)
+        tk.Radiobutton(self.control_panel, text="Hard", variable=self.difficulty, 
+                      value="hard").pack(side=tk.LEFT)
+
+        # Create buttons
+        self.buttons_frame = tk.Frame(self.window)
+        self.buttons_frame.pack(pady=5)
+
+        buttons = [
+            ("New Game", self.generate_new_game),
+            ("Check Solution", self.check_solution),
+            ("Hint", self.give_hint),
+            ("Clear Board", self.clear_board)
+        ]
+
+        for text, command in buttons:
+            tk.Button(self.buttons_frame, text=text, command=command).pack(side=tk.LEFT, padx=5)
