@@ -116,3 +116,35 @@ class SudokuBoard:
                         return False
 
         return True
+    def generate_new_game(self):
+        """Generates a new Sudoku puzzle"""
+        self.clear_board()
+        self.original_numbers.clear()
+
+        # Create a solved board
+        self.current_solution = self.generate_solved_board()
+        puzzle = copy.deepcopy(self.current_solution)
+
+        # Remove numbers based on difficulty
+        cells_to_keep = {
+            "easy": 40,
+            "medium": 30,
+            "hard": 25
+        }[self.difficulty.get()]
+
+        # Randomly remove numbers
+        cells_to_remove = 81 - cells_to_keep
+        positions = [(i, j) for i in range(9) for j in range(9)]
+        random.shuffle(positions)
+
+        for i, j in positions[:cells_to_remove]:
+            puzzle[i][j] = 0
+
+        # Fill the board
+        for i in range(9):
+            for j in range(9):
+                if puzzle[i][j] != 0:
+                    self.cells[(i, j)].insert(0, str(puzzle[i][j]))
+                    self.cells[(i, j)].config(fg='black')
+                    self.original_numbers.add((i, j))
+
