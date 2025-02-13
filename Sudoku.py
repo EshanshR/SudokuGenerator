@@ -147,4 +147,34 @@ class SudokuBoard:
                     self.cells[(i, j)].insert(0, str(puzzle[i][j]))
                     self.cells[(i, j)].config(fg='black')
                     self.original_numbers.add((i, j))
+    def generate_solved_board(self):
+        """Generates a solved Sudoku board"""
+        board = [[0]*9 for _ in range(9)]
+        self.solve_board(board)
+        return board
+
+    def solve_board(self, board):
+        """Solves the Sudoku board using backtracking"""
+        empty = self.find_empty(board)
+        if not empty:
+            return True
+
+        row, col = empty
+        for num in random.sample(range(1, 10), 9):
+            if self.is_valid(board, row, col, num):
+                board[row][col] = num
+                if self.solve_board(board):
+                    return True
+                board[row][col] = 0
+
+        return False
+
+    def find_empty(self, board):
+        """Finds an empty cell in the board"""
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] == 0:
+                    return (i, j)
+        return None
+                    
 
