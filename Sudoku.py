@@ -176,5 +176,25 @@ class SudokuBoard:
                 if board[i][j] == 0:
                     return (i, j)
         return None
+    def is_valid(self, board, row, col, num):
+        """Checks if a number is valid in the board"""
+        # Check row
+        for j in range(9):
+            if board[row][j] == num and j != col:
+                return False
+
+        # Check column
+        for i in range(9):
+            if board[i][col] == num and i != row:
+                return False
+
+        # Check 3x3 box
+        box_row, box_col = 3 * (row // 3), 3 * (col // 3)
+        for i in range(box_row, box_row + 3):
+            for j in range(box_col, box_col + 3):
+                if board[i][j] == num and (i, j) != (row, col):
+                    return False
+
+        return True
                     
 
