@@ -276,4 +276,124 @@ class SudokuBoard:
                     messagebox.showinfo("Incorrect", "There are some errors in your solution.")
                     return
         messagebox.showinfo("Congratulations!", "You solved the puzzle correctly!")
-        
+    def give_hint(self):
+
+        if not self.current_solution:
+            messagebox.showinfo("Error", "No puzzle in progress!")
+            return
+
+        # Initialize hint tracking if not exists
+        if not hasattr(self, 'hints_used'):
+            self.hints_used = 0
+            self.hint_limit = {'easy': 5, 'medium': 3, 'hard': 2}
+            self.last_hint_time = 0
+
+        # Check hint limits based on difficulty
+        current_limit = self.hint_limit[self.difficulty.get()]
+        if self.hints_used >= current_limit:
+            messagebox.showinfo("Hint Limit", 
+                f"Maximum hints ({current_limit}) reached for {self.difficulty.get()} difficulty!")
+            return
+
+        # Collect and analyze empty cells
+        empty_cells = []
+        cell_scores = {}
+
+        for i in range(9):
+            for j in range(9):
+                if not self.cells[(i, j)].get():
+                    empty_cells.append((i, j))
+                    # Calculate complexity score for this cell
+                    score = self._calculate_hint_score(i, j)
+                    cell_scores[(i, j)] = score
+
+        if not empty_cells:
+            messagebox.showinfo("No Hints", "No empty cells to hint!")
+            return
+
+        # Select cell based on difficulty and scores
+        selected_cell = self._select_hint_cell(empty_cells, cell_scores)
+        if selected_cell:
+            row, col = selected_cell
+            self._apply_hint_effect(row, col)
+            self.hints_used += 1
+
+    def _calculate_hint_score(self, row, col):
+        """Calculate the strategic importance of a cell for hinting"""
+        score = 0
+
+        # Count filled neighbors
+        filled_neighbors = 0
+        for i in range(9):
+            if self.cells[(row, i)].get():  # Row check
+                filled_neighbors += 1
+            if self.cells[(i, col)].get():  # Column check
+                filled_neighbors += 1
+
+        # Check 3x3 box
+        box_row, box_col = 3 * (row // 3), 3 * (col // 3)
+        for i in range(box_row, box_row + 3):
+            for j in range(box_col, box_col + 3):
+                if self.cells[(i, j)].get():
+                    filled_neighbors += 1
+
+        # Calculate positional weight
+        center_distance = abs(row - 4) + abs(col - 4)
+        positional_weight = 9 - center_distance  # Prefer center cells
+
+        # Calculate final score
+        score = (filled_neighbors * 2) + positional_weight
+        return score
+
+    def _select_hint_cell(self, empty_cells, cell_scores):
+        """Select appropriate cell based on difficulty and scores"""
+        if not empty_cells:
+            return None
+
+        sorted_cells = sorted(cell_scores.items(), key=lambda x: x[1])
+        difficulty = self.difficulty.get()
+
+        if difficulty == 'easy':
+            # Choose easiest cell (highest score)
+            return sorted_cells[-1][0]
+        elif difficulty == 'hard':
+            # Choose harder cell (lower score)
+            return sorted_cells[0][0]
+        else:  # medium
+            # Choose medium difficulty cell
+            mid_index = len(sorted_cells) // 2
+            return sorted_cells[mid_index][0]
+
+    def _apply_hint_effect(self, row, col):
+        """Apply visual feedback for the hint"""
+        cell = self.cells[(row, col)]
+        value = str(self.current_solution[row][col])
+
+        # Animated hint effect
+        original_bg = cell['bg']
+
+        # Flash effect
+        def flash_sequence():
+            cell.config(bg='yellow')
+            self.window.after(200, lambda: cell.config(bg='white'))
+            self.window.after(400, lambda: cell.config(bg='yellow'))
+            self.window.after(600, lambda: cell.config(bg=original_bg))
+            self.window.after(800, lambda: cell.insert(0, value))
+            self.window.after(800, lambda: cell.config(fg='green'))
+
+        flash_sequence()
+    def clear_board(self):
+        """Clears all cells on the board"""
+        for cell in self.cells.values():
+            cell.delete(0, tk.END)
+            cell.config(fg='black')
+
+    def run(self):
+        """Starts the game"""
+        self.window.mainloop()
+
+# Create and run the game
+if __name__ == "__main__":
+    game = SudokuBoard()
+    game.run()
+       
