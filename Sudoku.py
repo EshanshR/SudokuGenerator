@@ -196,6 +196,7 @@ class SudokuBoard:
                     return False
 
         return True
+    
     def check_solution(self):
         """Checks if the current board state is correct"""
         for i in range(9):
@@ -208,6 +209,19 @@ class SudokuBoard:
                     messagebox.showinfo("Incorrect", "There are some errors in your solution.")
                     return
         messagebox.showinfo("Congratulations!", "You solved the puzzle correctly!")
+ 
+    def give_hint(self):
+        """Provides a hint by filling in one correct number"""
+        if not self.current_solution:
+            return
 
-                    
+        empty_cells = []
+        for i in range(9):
+            for j in range(9):
+                if not self.cells[(i, j)].get():
+                    empty_cells.append((i, j))
 
+        if empty_cells:
+            row, col = random.choice(empty_cells)
+            self.cells[(row, col)].insert(0, str(self.current_solution[row][col]))
+            self.cells[(row, col)].config(fg='green')
