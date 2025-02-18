@@ -7,69 +7,136 @@ class SudokuBoard:
         self.window = tk.Tk()
         self.window.title("Advanced Sudoku Game")
         self.current_solution = None
-        self.original_numbers = set()  # To track initial numbers
+        self.original_numbers = set()
 
-        # Create main frame
-        self.main_frame = tk.Frame(self.window)
-        self.main_frame.pack(padx=10, pady=10)
+        # Set window background and style
+        self.window.configure(bg='#2C3E50')  # Dark blue-grey background
+
+        # Create title label with decorative styling
+        title_label = tk.Label(
+            self.window,
+            text="SUDOKU",
+            font=('Arial Black', 24, 'bold'),
+            fg='#ECF0F1',  # Light grey text
+            bg='#2C3E50',  # Match window background
+            pady=10
+        )
+        title_label.pack()
+
+        # Create main frame with border effect
+        outer_frame = tk.Frame(self.window, bg='#E74C3C', padx=3, pady=3)  # Red border
+        middle_frame = tk.Frame(outer_frame, bg='#ECF0F1', padx=2, pady=2)  # White border
+        self.main_frame = tk.Frame(middle_frame, bg='#2C3E50')  # Dark blue-grey background
+
+        outer_frame.pack(padx=10, pady=10)
+        middle_frame.pack()
+        self.main_frame.pack()
 
         # Create 9x9 grid of entry widgets
         self.cells = {}
         for i in range(9):
             for j in range(9):
-                # Create frame for each 3x3 box
-                if i % 3 == 0 and j % 3 == 0:
-                    box_frame = tk.Frame(
-                        self.main_frame,
-                        borderwidth=2,
-                        relief='solid'
-                    )
-                    box_frame.grid(row=i//3, column=j//3, padx=1, pady=1)
+                # Alternate colors for 3x3 boxes
+                if (i//3 + j//3) % 2 == 0:
+                    cell_bg = '#FCF3CF'  # Light yellow
+                else:
+                    cell_bg = '#FFFFFF'  # White
 
-                # Calculate box color
-                box_color = 'white' if (i//3 + j//3) % 2 == 0 else '#f0f0f0'
-
-                # Create entry widget
+                # Create entry widget with styled border
                 cell = tk.Entry(
-                    box_frame,
+                    self.main_frame,
                     width=2,
-                    font=('Arial', 18),
+                    font=('Arial', 20, 'bold'),
                     justify='center',
-                    bg=box_color
+                    bg=cell_bg,
+                    fg='#2C3E50',  # Dark text
+                    relief='solid',
+                    borderwidth=1
                 )
 
-                # Position within 3x3 box
-                cell.grid(row=i%3, column=j%3, padx=1, pady=1)
+                # Add padding for 3x3 box effect
+                padx = (1, 2) if j % 3 == 2 and j != 8 else 1
+                pady = (1, 2) if i % 3 == 2 and i != 8 else 1
+
+                cell.grid(row=i, column=j, padx=padx, pady=pady, ipady=6)
                 cell.bind('<KeyRelease>', lambda e, i=i, j=j: self.validate_input(e, i, j))
 
                 self.cells[(i, j)] = cell
-                     # Create control panel
-        self.control_panel = tk.Frame(self.window)
+
+        # Create styled control panel
+        self.control_panel = tk.Frame(self.window, bg='#2C3E50')
         self.control_panel.pack(pady=10)
 
-        # Create difficulty selector
+        # Create difficulty selector with styled radio buttons
         self.difficulty = tk.StringVar(value="medium")
-        tk.Label(self.control_panel, text="Difficulty:").pack(side=tk.LEFT)
-        tk.Radiobutton(self.control_panel, text="Easy", variable=self.difficulty, 
-                      value="easy").pack(side=tk.LEFT)
-        tk.Radiobutton(self.control_panel, text="Medium", variable=self.difficulty, 
-                      value="medium").pack(side=tk.LEFT)
-        tk.Radiobutton(self.control_panel, text="Hard", variable=self.difficulty, 
-                      value="hard").pack(side=tk.LEFT)
+        difficulty_label = tk.Label(
+            self.control_panel,
+            text="Difficulty:",
+            font=('Arial', 12, 'bold'),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        difficulty_label.pack(side=tk.LEFT, padx=5)
 
-        # Create buttons
-        self.buttons_frame = tk.Frame(self.window)
-        self.buttons_frame.pack(pady=5)
+        for level in ["Easy", "Medium", "Hard"]:
+            rb = tk.Radiobutton(
+                self.control_panel,
+                text=level,
+                variable=self.difficulty,
+                value=level.lower(),
+                font=('Arial', 10),
+                fg='#ECF0F1',
+                bg='#2C3E50',
+                selectcolor='#34495E'
+            )
+            rb.pack(side=tk.LEFT, padx=5)
 
-        buttons = [
-            ("New Game", self.generate_new_game),
-            ("Check Solution", self.check_solution),
-            ("Hint", self.give_hint),
-            ("Clear Board", self.clear_board)
+        # Create styled buttons
+        self.buttons_frame = tk.Frame(self.window, bg='#2C3E50')
+        self.buttons_frame.pack(pady=10)
+
+        button_style = {
+            'font': ('Arial', 11, 'bold'),
+            'width': 12,
+            'relief': 'raised',
+            'bd': 2,
+            'padx': 10,
+            'pady': 5
+        }
+
+        button_configs = [
+            ("New Game", self.generate_new_game, '#27AE60'),  # Green
+            ("Check Solution", self.check_solution, '#3498DB'),  # Blue
+            ("Hint", self.give_hint, '#E67E22'),  # Orange
+            ("Clear Board", self.clear_board, '#E74C3C')  # Red
         ]
 
-        for text, command in buttons:
-            tk.Button(self.buttons_frame, text=text, command=command).pack(side=tk.LEFT, padx=5)
+        for text, command, color in button_configs:
+            btn = tk.Button(
+                self.buttons_frame,
+                text=text,
+                command=command,
+                bg=color,
+                fg='white',
+                activebackground=color,
+                activeforeground='white',
+                **button_style
+            )
+            btn.pack(side=tk.LEFT, padx=5)
+
+        # Add a decorative footer
+        footer = tk.Label(
+            self.window,
+            text="Good Luck!",
+            font=('Arial', 10, 'italic'),
+            fg='#ECF0F1',
+            bg='#2C3E50',
+            pady=5
+        )
+        footer.pack()
+
+        # Configure window
+        self.window.resizable(False, False)
     def validate_input(self, event, i, j):
             """Validates user input in cells"""
             cell = self.cells[(i, j)]
@@ -209,19 +276,4 @@ class SudokuBoard:
                     messagebox.showinfo("Incorrect", "There are some errors in your solution.")
                     return
         messagebox.showinfo("Congratulations!", "You solved the puzzle correctly!")
- 
-    def give_hint(self):
-        """Provides a hint by filling in one correct number"""
-        if not self.current_solution:
-            return
-
-        empty_cells = []
-        for i in range(9):
-            for j in range(9):
-                if not self.cells[(i, j)].get():
-                    empty_cells.append((i, j))
-
-        if empty_cells:
-            row, col = random.choice(empty_cells)
-            self.cells[(row, col)].insert(0, str(self.current_solution[row][col]))
-            self.cells[(row, col)].config(fg='green')
+        
