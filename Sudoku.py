@@ -196,5 +196,18 @@ class SudokuBoard:
                     return False
 
         return True
+    def check_solution(self):
+        """Checks if the current board state is correct"""
+        for i in range(9):
+            for j in range(9):
+                value = self.cells[(i, j)].get()
+                if not value:
+                    messagebox.showinfo("Incomplete", "Please fill in all cells!")
+                    return
+                if not self.is_valid_move(i, j, int(value)):
+                    messagebox.showinfo("Incorrect", "There are some errors in your solution.")
+                    return
+        messagebox.showinfo("Congratulations!", "You solved the puzzle correctly!")
+
                     
 
