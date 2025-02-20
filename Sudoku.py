@@ -2,6 +2,133 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 import copy
+
+class LoginScreen:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Sudoku Login")
+        self.window.geometry("400x500")
+        self.window.configure(bg='#2C3E50')
+
+        # Create main frame
+        self.frame = tk.Frame(self.window, bg='#2C3E50')
+        self.frame.place(relx=0.5, rely=0.5, anchor='center')
+
+        # Logo/Title
+        self.title_label = tk.Label(
+            self.frame,
+            text="SUDOKU",
+            font=('Arial Black', 32, 'bold'),
+            fg='#ECF0F1',
+            bg='#2C3E50',
+            pady=20
+        )
+        self.title_label.pack()
+
+        # Welcome message
+        self.welcome_label = tk.Label(
+            self.frame,
+            text="Welcome! Please login to play",
+            font=('Arial', 12),
+            fg='#ECF0F1',
+            bg='#2C3E50',
+            pady=10
+        )
+        self.welcome_label.pack()
+
+        # Username
+        self.username_frame = tk.Frame(self.frame, bg='#2C3E50')
+        self.username_frame.pack(pady=10)
+
+        self.username_label = tk.Label(
+            self.username_frame,
+            text="Username:",
+            font=('Arial', 10),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        self.username_label.pack()
+
+        self.username_entry = tk.Entry(
+            self.username_frame,
+            font=('Arial', 12),
+            width=20
+        )
+        self.username_entry.pack(pady=5)
+
+        # Password
+        self.password_frame = tk.Frame(self.frame, bg='#2C3E50')
+        self.password_frame.pack(pady=10)
+
+        self.password_label = tk.Label(
+            self.password_frame,
+            text="Password:",
+            font=('Arial', 10),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        self.password_label.pack()
+
+        self.password_entry = tk.Entry(
+            self.password_frame,
+            font=('Arial', 12),
+            width=20,
+            show="*"  # Masks password with dots
+        )
+        self.password_entry.pack(pady=5)
+
+        # Login Button
+        self.login_button = tk.Button(
+            self.frame,
+            text="Login",
+            command=self.login,
+            font=('Arial', 12, 'bold'),
+            bg='#27AE60',
+            fg='white',
+            width=15,
+            pady=8,
+            relief='raised',
+            bd=2
+        )
+        self.login_button.pack(pady=20)
+
+        # Register Link
+        self.register_label = tk.Label(
+            self.frame,
+            text="New user? Register here",
+            font=('Arial', 10, 'underline'),
+            fg='#3498DB',
+            bg='#2C3E50',
+            cursor="hand2"
+        )
+        self.register_label.pack(pady=10)
+        self.register_label.bind("<Button-1>", self.show_register)
+
+        # For demonstration, store some dummy users
+        self.users = {
+            "demo": "password123",
+            "test": "test123"
+        }
+
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        if username in self.users and self.users[username] == password:
+            messagebox.showinfo("Success", "Login successful!")
+            self.window.destroy()  # Close login window
+            game = SudokuBoard()  # Start Sudoku game
+            game.run()
+        else:
+            messagebox.showerror("Error", "Invalid username or password")
+
+    def show_register(self, event=None):
+        # For demonstration, just show a message
+        messagebox.showinfo("Register", "Registration functionality coming soon!")
+
+    def run(self):
+        self.window.mainloop()
+
 class SudokuBoard:
     def __init__(self):
         self.window = tk.Tk()
@@ -394,6 +521,6 @@ class SudokuBoard:
 
 # Create and run the game
 if __name__ == "__main__":
-    game = SudokuBoard()
+    game = LoginScreen()
     game.run()
        
