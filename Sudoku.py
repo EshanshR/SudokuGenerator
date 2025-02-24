@@ -123,8 +123,229 @@ class LoginScreen:
             messagebox.showerror("Error", "Invalid username or password")
 
     def show_register(self, event=None):
-        # For demonstration, just show a message
-        messagebox.showinfo("Register", "Registration functionality coming soon!")
+        self.window.destroy()
+        signup = SignupScreen()
+        signup.run()
+
+    def run(self):
+        self.window.mainloop()
+        
+
+class SignupScreen:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Sudoku Signup")
+        self.window.geometry("400x600")  # Made taller for requirement labels
+        self.window.configure(bg='#2C3E50')
+
+        # Create main frame
+        self.frame = tk.Frame(self.window, bg='#2C3E50')
+        self.frame.place(relx=0.5, rely=0.5, anchor='center')
+
+        # Title
+        self.title_label = tk.Label(
+            self.frame,
+            text="CREATE ACCOUNT",
+            font=('Arial Black', 24, 'bold'),
+            fg='#ECF0F1',
+            bg='#2C3E50',
+            pady=20
+        )
+        self.title_label.pack()
+
+        # Username Requirements
+        self.username_req_label = tk.Label(
+            self.frame,
+            text="Username must:\n Be 4-20 characters long\n Contain only letters, numbers, or underscore\n Start with a letter",
+            font=('Arial', 9),
+            fg='#BDC3C7',
+            bg='#2C3E50',
+            justify='left'
+        )
+        self.username_req_label.pack(pady=(10,0))
+
+        # Username
+        self.username_frame = tk.Frame(self.frame, bg='#2C3E50')
+        self.username_frame.pack(pady=5)
+
+        self.username_label = tk.Label(
+            self.username_frame,
+            text="Create Username:",
+            font=('Arial', 10),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        self.username_label.pack()
+
+        self.username_entry = tk.Entry(
+            self.username_frame,
+            font=('Arial', 12),
+            width=20
+        )
+        self.username_entry.pack(pady=5)
+
+        # Password Requirements
+        self.password_req_label = tk.Label(
+            self.frame,
+            text="Password must:\n Be 8-30 characters long\n Contain at least one uppercase letter\n Contain at least one lowercase letter\n Contain at least one number\n Contain at least one special character (!@#$%^&*)",
+            font=('Arial', 9),
+            fg='#BDC3C7',
+            bg='#2C3E50',
+            justify='left'
+        )
+        self.password_req_label.pack(pady=(10,0))
+
+        # Password
+        self.password_frame = tk.Frame(self.frame, bg='#2C3E50')
+        self.password_frame.pack(pady=5)
+
+        self.password_label = tk.Label(
+            self.password_frame,
+            text="Create Password:",
+            font=('Arial', 10),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        self.password_label.pack()
+
+        self.password_entry = tk.Entry(
+            self.password_frame,
+            font=('Arial', 12),
+            width=20,
+            show="*"
+        )
+        self.password_entry.pack(pady=5)
+
+        # Confirm Password
+        self.confirm_frame = tk.Frame(self.frame, bg='#2C3E50')
+        self.confirm_frame.pack(pady=10)
+
+        self.confirm_label = tk.Label(
+            self.confirm_frame,
+            text="Confirm Password:",
+            font=('Arial', 10),
+            fg='#ECF0F1',
+            bg='#2C3E50'
+        )
+        self.confirm_label.pack()
+
+        self.confirm_entry = tk.Entry(
+            self.confirm_frame,
+            font=('Arial', 12),
+            width=20,
+            show="*"
+        )
+        self.confirm_entry.pack(pady=5)
+
+        # Show/Hide Password Checkbox
+        self.show_password_var = tk.BooleanVar()
+        self.show_password_check = tk.Checkbutton(
+            self.frame,
+            text="Show Password",
+            variable=self.show_password_var,
+            command=self.toggle_password_visibility,
+            bg='#2C3E50',
+            fg='#ECF0F1',
+            selectcolor='#34495E'
+        )
+        self.show_password_check.pack(pady=5)
+
+        # Signup Button
+        self.signup_button = tk.Button(
+            self.frame,
+            text="Sign Up",
+            command=self.signup,
+            font=('Arial', 12, 'bold'),
+            bg='#27AE60',
+            fg='white',
+            width=15,
+            pady=8,
+            relief='raised',
+            bd=2
+        )
+        self.signup_button.pack(pady=20)
+
+        # Login Link
+        self.login_label = tk.Label(
+            self.frame,
+            text="Already have an account? Login here",
+            font=('Arial', 10, 'underline'),
+            fg='#3498DB',
+            bg='#2C3E50',
+            cursor="hand2"
+        )
+        self.login_label.pack(pady=10)
+        self.login_label.bind("<Button-1>", self.show_login)
+
+    def toggle_password_visibility(self):
+        if self.show_password_var.get():
+            self.password_entry.config(show="")
+            self.confirm_entry.config(show="")
+        else:
+            self.password_entry.config(show="*")
+            self.confirm_entry.config(show="*")
+
+    def validate_username(self, username):
+        import re
+        # Check if username starts with a letter and contains only letters, numbers, or underscore
+        pattern = r'^[a-zA-Z][a-zA-Z0-9_]{3,19}$'
+        return bool(re.match(pattern, username))
+
+    def validate_password(self, password):
+        import re
+        # Check length
+        if not (8 <= len(password) <= 30):
+            return False
+
+        # Check for at least one uppercase letter
+        if not re.search(r'[A-Z]', password):
+            return False
+
+        # Check for at least one lowercase letter
+        if not re.search(r'[a-z]', password):
+            return False
+
+        # Check for at least one number
+        if not re.search(r'\d', password):
+            return False
+
+        # Check for at least one special character
+        if not re.search(r'[!@#$%^&*]', password):
+            return False
+
+        return True
+
+    def signup(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        confirm_password = self.confirm_entry.get()
+
+        if not username or not password or not confirm_password:
+            messagebox.showerror("Error", "Please fill in all fields")
+            return
+
+        if not self.validate_username(username):
+            messagebox.showerror("Error", "Username does not meet requirements")
+            return
+
+        if not self.validate_password(password):
+            messagebox.showerror("Error", "Password does not meet requirements")
+            return
+
+        if password != confirm_password:
+            messagebox.showerror("Error", "Passwords do not match")
+            return
+
+        # Here you would typically save the new user to your database
+        messagebox.showinfo("Success", "Account created successfully!")
+        self.window.destroy()
+        login = LoginScreen()
+        login.run()
+
+    def show_login(self, event=None):
+        self.window.destroy()
+        login = LoginScreen()
+        login.run()
 
     def run(self):
         self.window.mainloop()
@@ -321,9 +542,9 @@ class SudokuBoard:
 
         # Remove numbers based on difficulty
         cells_to_keep = {
-            "easy": 40,
-            "medium": 30,
-            "hard": 25
+            "easy": 50,
+            "medium": 40,
+            "hard": 30
         }[self.difficulty.get()]
 
         # Randomly remove numbers
